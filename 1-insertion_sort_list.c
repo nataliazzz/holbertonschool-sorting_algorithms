@@ -1,45 +1,92 @@
 #include "sort.h"
+/**
+ * swap_backward -swap two nodes
+ * @c: list
+ *
+ **/
+void swap_backward(listint_t *c)
+{
+	listint_t *tmp, *head;
 
+	while (c->prev != NULL)
+	{
+		if (c->n < c->prev->n)
+		{
+			tmp = c->prev->prev;
+			c->prev->next = c->next;
+			c->next = c->prev;
+			c->prev->prev = c;
+			c->prev = tmp;
+			c->next->next->prev = c->next;
+			if (tmp != NULL)
+				tmp->next = c;
+			head = c;
+			while (head->prev != NULL)
+				head = head->prev;
+			print_list(head);
+		}
+		else
+			c = c->prev;
+	}
+}
+/**
+ * swap_forward -swap two nodes
+ * @c: list
+ *
+ **/
+void swap_forward(listint_t *c)
+{
+	listint_t *tmp, *head;
+
+	tmp = c->prev;
+
+	if (tmp != NULL)
+	{
+		tmp->next = c->next;
+		c->next->prev = tmp;
+	}
+	else
+		c->next->prev = NULL;
+	c->prev = c->next;
+	if (c->next->next != NULL)
+	{
+		c->next = c->next->next;
+		c->prev->next = c;
+		c->next->prev = c;
+	}
+	else
+	{
+		c->next->next = c;
+		c->next = NULL;
+	}
+	head = c;
+	while (head->prev != NULL)
+		head = head->prev;
+	print_list(head);
+	swap_backward(c->prev);
+}
+/**
+ * insertion_sort_list -sort a doubly linked list
+ * @list: list
+ *
+ **/
 void insertion_sort_list(listint_t **list)
 {
-	bool flag = false;
-	listint_t *tmp = NULL, *aux = NULL;
+	listint_t *c;
 
-	if (!list || !(*list) || !(*list)->next)
+	if ((list == NULL) || (*list == NULL) || ((*list)->next == NULL))
 		return;
+	c = *list;
 
-	tmp = *list;
-	while (tmp->next)
+	while (c->next != NULL)
 	{
-		if (tmp->n > tmp->next->n)
+		if (c->n > c->next->n)
 		{
-			tmp->next->prev = tmp->prev;
-			if (tmp->next->prev)
-				tmp->prev->next = tmp->next;
-			else
-				*list = tmp->next;
-
-			tmp->prev = tmp->next;
-			tmp->next = tmp->next->next;
-			tmp->prev->next = tmp;
-			if (tmp->next)
-				tmp->next->prev = tmp;
-
-			tmp = tmp->prev;
-			print_list(*list);
-
-			if (tmp->prev && tmp->prev->n > tmp->n)
-			{
-				if (!flag)
-					aux = tmp->next;
-				flag = true;
-				tmp = tmp->prev;
-				continue;
-			}
+			swap_forward(c);
 		}
-		if (!flag)
-			tmp = tmp->next;
 		else
-			tmp = aux, flag = false;
+			c = c->next;
 	}
+	while ((*list)->prev != NULL)
+		*list = (*list)->prev;
 }
